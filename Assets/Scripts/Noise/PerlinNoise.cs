@@ -11,16 +11,13 @@ public class PerlinNoise : MonoBehaviour
     [SerializeField] float lacunarity;
     [SerializeField] float persistance;
 
-
     private float minHeight;
     private float maxHeight;
 
-
     float[,] noiseMap;
 
-    private int width;
-    private int height;
-
+    private int size;
+    
     private float previousNoiseScale;
     private int previousOctaves;
     private float previousLacunarity;
@@ -29,11 +26,7 @@ public class PerlinNoise : MonoBehaviour
     void Start()
     {
         SetValues();
-        GeneratePerlinNoiseMap();
-        ApplyTexture();
         mapManager.onValuesChanged += SetValues;
-        mapManager.onValuesChanged += GeneratePerlinNoiseMap;
-        mapManager.onValuesChanged += ApplyTexture;
     }
 
     // Update is called once per frame
@@ -55,17 +48,17 @@ public class PerlinNoise : MonoBehaviour
         previousOctaves = octaves;
         previousLacunarity = lacunarity;
         previousPersistance = persistance;
-        width = mapManager.GetWidth();
-        height = mapManager.GetHeight();
+        size = mapManager.GetChunkSize();
     }
 
-    public void GeneratePerlinNoiseMap()
+    public float[,] GeneratePerlinNoiseMap(Vector2Int offset, int chunkSize)
     {
+        offset *= chunkSize;
 
-        noiseMap = new float[width, height];
-        for (int i = 0; i < height; i++)
+        noiseMap = new float[size, size];
+        for (int i = 0; i < size; i++)
         {
-            for (int j = 0; j < width; j++)
+            for (int j = 0; j < size; j++)
             {
                 float frequency = 1;
                 float amplitude = 1;
@@ -74,6 +67,8 @@ public class PerlinNoise : MonoBehaviour
                 {
                     float scaledX = j / noiseScale * frequency;
                     float scaledY = i / noiseScale * frequency;
+                    scaledX += offset.x;
+                    scaledY += offset.y;
                     float perlinNoise = Mathf.PerlinNoise(scaledX, scaledY);
                     noise += perlinNoise * amplitude;
 
@@ -91,17 +86,17 @@ public class PerlinNoise : MonoBehaviour
                 noiseMap[j, i] = noise;
             }
         }
-        for (int i = 0; i < height; i++)
+        for (int i = 0; i < size; i++)
         {
-            for (int j = 0; j < width; j++)
+            for (int j = 0; j < size; j++)
             {
                 noiseMap[j, i] = Mathf.InverseLerp(minHeight, maxHeight, noiseMap[j,i]);
             }
         }
-        mapManager.SetPerlinNoieMap(noiseMap);
+        return noiseMap;
     }
 
-    void ApplyTexture()
+    public void ApplyTexture()
     {
         noiseTexture = CopyNoiseMapOnTexture();
         GetComponent<MeshRenderer>().material.mainTexture = noiseTexture;
@@ -109,14 +104,14 @@ public class PerlinNoise : MonoBehaviour
 
     Texture2D CopyNoiseMapOnTexture()
     {
-        Texture2D texture2D = new Texture2D(width,height);
-        Color[] colorMap = new Color[width*height];
-        for(int i = 0; i < height; i++)
+        Texture2D texture2D = new Texture2D(size,size);
+        Color[] colorMap = new Color[size*size];
+        for(int i = 0; i < size; i++)
         {
-            for(int j = 0; j < width; j++)
+            for(int j = 0; j < size; j++)
             {
                 float color = noiseMap[j, i];
-                colorMap[i * width + j] = Color.Lerp(Color.white,Color.black,color);
+                colorMap[i * size + j] = Color.Lerp(Color.white,Color.black,color);
             }
         }
         texture2D.SetPixels(colorMap);

@@ -1,0 +1,68 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+float time;
+
+float minHeight = 100000;
+float maxHeight = -100000;
+
+float mix(float x, float y, float a) {
+    return x * (1 - a) + y * a;
+}
+
+float2 randomGradient(float2 p){
+    p = p +0.01f;
+    float x = dot(p,float2(512.2,698.1));
+    float y = dot(p,float2(278.8,493.6));            
+    float2 gradient = float2(x,y);
+
+    gradient = sin(gradient);
+    gradient = gradient * 86158.4563;
+    gradient = sin(gradient + time);
+    return gradient;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+    uint width,height;
+    Result.GetDimensions(width, height);
+
+    float2 uv = id.xy / float2(width,height) * 2 - 1;
+    uv = uv*4;
+    float2 gridId = floor(uv);
+    float2 gridUv = uv - floor(uv);
+
+    float2 bottomLeft = gridId +float2(0,0);
+    float2 bottomRight = gridId +float2(1,0);
+    float2 topLeft = gridId +float2(0,1);
+    float2 topRight = gridId +float2(1,1);
+
+    float2 gradientBottomLeft = randomGradient(bottomLeft);
+    float2 gradientBottomRight = randomGradient(bottomRight);
+    float2 gradientTopLeft = randomGradient(topLeft);
+    float2 gradientTopRight = randomGradient(topRight);
+
+    float2 distFromPxToBottomLeft = gridUv -float2(0,0);
+    float2 distFromPxToBottomRight = gridUv -float2(1,0);
+    float2 distFromPxToTopLeft = gridUv -float2(0,1);
+    float2 distFromPxToTopRight = gridUv -float2(1,1);
+
+    float dotBottomLeft = dot(gradientBottomLeft,distFromPxToBottomLeft);
+    float dotBottomRight = dot(gradientBottomRight,distFromPxToBottomRight);
+    float dotTopLeft = dot(gradientTopLeft,distFromPxToTopLeft);
+    float dotTopRight = dot(gradientTopRight,distFromPxToTopRight);
+
+    float bottom = mix(dotBottomLeft,dotBottomRight,gridUv.x);
+    float top = mix(dotTopLeft,dotTopRight,gridUv.x);
+
+    float perlin = mix(bottom,top,gridUv.y);
+
+    Result[id.xy] = float4(perlin.xxx,0);
+
+}
