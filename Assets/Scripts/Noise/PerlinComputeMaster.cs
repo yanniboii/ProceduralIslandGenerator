@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,13 +13,16 @@ public class PerlinComputeMaster : MonoBehaviour
     [SerializeField] ComputeShader computeShader;
     [SerializeField] Texture2D renderTarget;
 
+    ComputeBuffer computeBuffer;
+    ComputeBuffer octaveBuffer;
+
+    private List<Octave> octaveList;
+
     private RenderTexture renderTexture;
-    private Camera _camera;
 
     // Start is called before the first frame update
     void Start()
     {
-        _camera = Camera.current;
     }
 
     // Update is called once per frame
@@ -27,21 +31,52 @@ public class PerlinComputeMaster : MonoBehaviour
 
     }
 
-    public float[,] GetPerlinNoise(int chunkSize)
+    public float[,] GetPerlinNoise(int chunkSize, Vector2 offset, out Texture2D texture2D)
     {
-        SetValues();
+        offset *= chunkSize;
+        SetValues(offset);
         InitRenderTexture(chunkSize);
 
         computeShader.SetTexture(0,"Result",renderTexture);
-        int threadGroups = Mathf.CeilToInt(chunkSize/8);
+        int threadGroups = Mathf.CeilToInt(chunkSize/8.0f);
 
-        computeShader.Dispatch(0,threadGroups,threadGroups,1);
 
-        renderTarget = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBA32, false);
+        computeShader.Dispatch(0, threadGroups, threadGroups, 1);
+
+        renderTarget = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGBAFloat, false);
         CopyRenderTextureToTexture2D();
 
         float[,] floatArray = ConvertTexture2DToFloatArray(renderTarget);
 
+        //for (int i = 0; i < chunkSize; i++)
+        //{
+        //    for (int j = 0; j < chunkSize; j++)
+        //    {
+        //        float noise = floatArray[j, i];
+        //        if (noise > maxHeight)
+        //        {
+        //            maxHeight = noise;
+        //        }
+        //        else if (noise < minHeight)
+        //        {
+        //            minHeight = noise;
+        //        }
+        //    }
+        //}
+        //for (int i = 0; i < chunkSize; i++)
+        //{
+        //    for (int j = 0; j < chunkSize; j++)
+        //    {
+        //        floatArray[j, i] = Mathf.InverseLerp(minHeight, maxHeight, floatArray[j, i]);
+        //        //Debug.Log(floatArray[j, i]);
+        //    }
+        //}
+        //Debug.Log("MinHeight " + minHeight + " MaxHeight " + maxHeight);
+
+        octaveBuffer.Dispose();
+        computeBuffer.Dispose();
+
+        texture2D = renderTarget;
         return floatArray;
     }
 
@@ -89,8 +124,41 @@ public class PerlinComputeMaster : MonoBehaviour
         }
     }
 
-    void SetValues()
+    void SetValues(Vector2 offset)
     {
-        computeShader.SetFloat("time",Time.time);
+        computeBuffer = new ComputeBuffer(1,sizeof(float));
+        float[] minMaxFloats = new float[1];
+        minMaxFloats[0] = 0;
+        computeBuffer.SetData(minMaxFloats);
+        computeShader.SetBuffer(0,"minMaxBuffer", computeBuffer);
+
+        octaveList = new List<Octave>();
+
+        float frequency = 1;
+        float amplitude = 1;
+        for (int k = 0; k < octaves; k++)
+        {
+            octaveList.Add(new Octave(frequency,amplitude));
+            amplitude *= persistance;
+            frequency *= lacunarity;
+        }
+        octaveBuffer = new ComputeBuffer(octaveList.Count,sizeof(float)*2);
+        octaveBuffer.SetData(octaveList);
+        computeShader.SetBuffer(0, "octaveBuffer",octaveBuffer);
+        computeShader.SetInt("octavesCount",octaveList.Count);
+
+        computeShader.SetFloat("seed",MapManager.seed);
+        computeShader.SetVector("offset",offset);
+        computeShader.SetFloat("noiseScale",noiseScale);
     }
 }
+
+public struct Octave{
+    float frequency;
+    float amplitude;
+    public Octave(float freqeuncy, float amplitude)
+    {
+        this.frequency = freqeuncy;
+        this.amplitude = amplitude;
+    }
+};

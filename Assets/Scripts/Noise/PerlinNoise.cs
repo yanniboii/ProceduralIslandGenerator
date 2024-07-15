@@ -90,7 +90,7 @@ public class PerlinNoise : MonoBehaviour
         {
             for (int j = 0; j < size; j++)
             {
-                noiseMap[j, i] = Mathf.InverseLerp(minHeight, maxHeight, noiseMap[j,i]);
+                //noiseMap[j, i] = Mathf.InverseLerp(minHeight, maxHeight, noiseMap[j,i]);
             }
         }
         return noiseMap;

@@ -6,13 +6,14 @@ using System;
 
 public class MapManager : MonoBehaviour
 {
+    [SerializeField] public static int seed;
     [Range(1, 1000)]
     [SerializeField] int chunkSize;
 
     [SerializeField] float renderDistance;
 
     [SerializeField] Transform playerTransform;
-
+    [SerializeField] List<Chunk> chunkList = new List<Chunk>();
 
 
     #region components
@@ -75,6 +76,7 @@ public class MapManager : MonoBehaviour
                 {
                     Debug.Log("B");
                     chunks.Add(currentChunk,new Chunk(meshGenerator,perlinNoise, perlinComputeMaster, currentChunk, chunkSize));
+                    chunkList.Add(new Chunk(meshGenerator, perlinNoise, perlinComputeMaster, currentChunk, chunkSize));
                 }
                 else
                 {
@@ -117,6 +119,7 @@ public struct Chunk
 {
     public Vector2Int pos;
     public GameObject gameObject;
+    public Texture2D texture2D;
 
     public bool initialized;
 
@@ -137,7 +140,7 @@ public struct Chunk
         this.chunkSize = chunkSize;
 
         //perlinNoiseMap = perlinNoise.GeneratePerlinNoiseMap(this.pos,chunkSize);
-        perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize);
+        perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x,this.pos.y), out texture2D);
         gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize);
 
         initialized = true;

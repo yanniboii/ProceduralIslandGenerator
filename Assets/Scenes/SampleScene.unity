@@ -587,9 +587,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a82d0abd8dca084499b5589eb82f7ff7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkSize: 60
+  chunkSize: 256
   renderDistance: 183.7
   playerTransform: {fileID: 1448971386}
+  chunkList: []
 --- !u!114 &2010719747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -602,11 +603,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 414f0f9de2e338042b7c06229d3d2000, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  noiseScale: 51.3
-  octaves: 147
+  noiseScale: 2.6
+  octaves: 3
   lacunarity: 1.62
   persistance: 0.5
   computeShader: {fileID: 7200000, guid: 9ad851a7ce50eee4b82d18f24f9fb4a1, type: 3}
+  renderTarget: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
