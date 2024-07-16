@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System;
 
 public class MapManager : MonoBehaviour
 {
@@ -13,6 +12,9 @@ public class MapManager : MonoBehaviour
     [SerializeField] float renderDistance;
 
     [SerializeField] Transform playerTransform;
+
+    [SerializeField] SimpleVoronoi simpleVoronoi;
+
     [SerializeField] List<Chunk> chunkList = new List<Chunk>();
 
 
@@ -75,8 +77,7 @@ public class MapManager : MonoBehaviour
                 if (!chunks.ContainsKey(currentChunk))
                 {
                     Debug.Log("B");
-                    chunks.Add(currentChunk,new Chunk(meshGenerator,perlinNoise, perlinComputeMaster, currentChunk, chunkSize));
-                    chunkList.Add(new Chunk(meshGenerator, perlinNoise, perlinComputeMaster, currentChunk, chunkSize));
+                    chunks.Add(currentChunk,new Chunk(meshGenerator,perlinNoise, perlinComputeMaster, simpleVoronoi, currentChunk, chunkSize));
                 }
                 else
                 {
@@ -119,7 +120,6 @@ public struct Chunk
 {
     public Vector2Int pos;
     public GameObject gameObject;
-    public Texture2D texture2D;
 
     public bool initialized;
 
@@ -130,19 +130,32 @@ public struct Chunk
     float[,] perlinNoiseMap;
     int chunkSize;
 
-    public Chunk(MeshGenerator generator, PerlinNoise perlinNoise, PerlinComputeMaster perlinComputeMaster, Vector2Int pos, int chunkSize)
+    public Chunk(MeshGenerator generator, PerlinNoise perlinNoise, PerlinComputeMaster perlinComputeMaster, SimpleVoronoi simpleVoronoi,Vector2Int pos, int chunkSize)
     {
+        float random = Random.Range(0f,3f);
+
+
         this.generator = generator;
         this.perlinNoise = perlinNoise;
         this.perlinComputeMaster = perlinComputeMaster;
 
         this.pos = pos;
         this.chunkSize = chunkSize;
+        if (random > 2.5)
+        {
+            SimpleVoronoi pasteVoronoi = ScriptableObject.CreateInstance<SimpleVoronoi>();
 
-        //perlinNoiseMap = perlinNoise.GeneratePerlinNoiseMap(this.pos,chunkSize);
-        perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x,this.pos.y), out texture2D);
-        gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize);
+            pasteVoronoi.Initialize(chunkSize, simpleVoronoi);
 
+            //perlinNoiseMap = perlinNoise.GeneratePerlinNoiseMap(this.pos,chunkSize);
+            perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x, this.pos.y));
+            gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize, pasteVoronoi);
+        }
+        else
+        {
+            perlinNoiseMap = new float[1,1];
+            gameObject = generator.GenerateMesh(this.pos, this.chunkSize);
+        }
         initialized = true;
     }
 }

@@ -31,9 +31,10 @@ public class PerlinComputeMaster : MonoBehaviour
 
     }
 
-    public float[,] GetPerlinNoise(int chunkSize, Vector2 offset, out Texture2D texture2D)
+    public float[,] GetPerlinNoise(int chunkSize, Vector2 offset)
     {
         offset *= chunkSize;
+        offset = new Vector2 (offset.x, -offset.y);
         SetValues(offset);
         InitRenderTexture(chunkSize);
 
@@ -76,7 +77,6 @@ public class PerlinComputeMaster : MonoBehaviour
         octaveBuffer.Dispose();
         computeBuffer.Dispose();
 
-        texture2D = renderTarget;
         return floatArray;
     }
 
