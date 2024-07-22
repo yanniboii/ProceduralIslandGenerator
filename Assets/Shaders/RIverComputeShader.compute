@@ -1,0 +1,54 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> FlowFieldVectors;
+RWTexture2D<float4> river;
+RWStructuredBuffer<float2> riverPath;
+
+struct Particle{
+    float2 pos;
+    float2 vel;
+    float2 acc;
+};
+RWStructuredBuffer<Particle> particles;
+int particlesCount;
+int maxSteps;
+
+float2 GetFlowDirection(float2 position){
+    return FlowFieldVectors.Load(int3(position,0)).xy * 2 - 1;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    river.GetDimensions(width,height);
+
+    if(id.x < width && id.y < height){
+        river[id.xy] = float4(1,0,0,1);
+    }
+    for(int i = 0; i < maxSteps; i++){
+
+        for(int j = 0; j < particlesCount; j++){
+            float2 flowDirection = GetFlowDirection(particles[i].pos);
+            flowDirection = normalize(flowDirection);
+
+            if (particles[i].pos.x >= 0 && particles[i].pos.x < width && particles[i].pos.y >= 0 && particles[i].pos.y < height) {
+                river[int2(particles[i].pos.xy)] = float4(0,0,1,1);
+            }
+
+            riverPath[i] = particles[i].pos;
+            particles[i].acc = flowDirection;
+            particles[i].vel += particles[i].acc;
+            particles[i].vel = clamp(0,4,particles[i].pos);
+            particles[i].pos += particles[i].vel;
+            particles[i].vel -= 0.1f;
+        }
+
+
+        
+
+    }
+}

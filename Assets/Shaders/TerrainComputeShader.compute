@@ -5,6 +5,8 @@
 // with cs.SetTexture
 RWTexture2D<float4> Result;
 
+RWTexture2D<float4> FlowField;
+
 struct Octave
 {
     float frequency;
@@ -32,85 +34,84 @@ float fade(float t)
 
 }
 
-float2 fade(float2 t)
-{
-    //return (t * t * t * t * t * t) * 6 - 15 * (t * t * t * t) + 10 * (t * t * t);
-    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
-
-}
 
 float2 psuedoRandomGradient(float2 p){
-    p = p +0.01f;
-    float x = dot(p,float2(512.2,698.1));
-    float y = dot(p,float2(278.8,493.6));            
+    p = p +0.01f*seed;
+    float x = dot(p,float2(512.2 +seed,698.1 + seed));
+    float y = dot(p,float2(278.8 +seed,493.6 + seed));            
     float2 gradient = float2(x,y);
 
     gradient = sin(gradient);
-    gradient = gradient * 86158.4563;
+    gradient = gradient * 86158.4563+seed;
     gradient = sin(gradient + seed);
     return gradient;
 }
 
-float4 permute(float4 x)
+float noise2D(float2 uv)
 {
-    return fmod(34.0 * pow(x, 2) + x, 289.0);
+    float2 gridId = floor(uv);
+    float2 gridUv = uv - floor(uv);
+
+    float2 bottomLeft = gridId +float2(0,0);
+    float2 bottomRight = gridId +float2(1,0);
+    float2 topLeft = gridId +float2(0,1);
+    float2 topRight = gridId +float2(1,1);
+
+    float2 gradientBottomLeft = psuedoRandomGradient(bottomLeft);
+    float2 gradientBottomRight = psuedoRandomGradient(bottomRight);
+    float2 gradientTopLeft = psuedoRandomGradient(topLeft);
+    float2 gradientTopRight = psuedoRandomGradient(topRight);
+
+    float2 distFromPxToBottomLeft = gridUv -float2(0,0);
+    float2 distFromPxToBottomRight = gridUv -float2(1,0);
+    float2 distFromPxToTopLeft = gridUv -float2(0,1);
+    float2 distFromPxToTopRight = gridUv -float2(1,1);
+
+    float dotBottomLeft = dot(gradientBottomLeft,distFromPxToBottomLeft);
+    float dotBottomRight = dot(gradientBottomRight,distFromPxToBottomRight);
+    float dotTopLeft = dot(gradientTopLeft,distFromPxToTopLeft);
+    float dotTopRight = dot(gradientTopRight,distFromPxToTopRight);
+
+    float u = fade(gridUv.x);
+    float v = fade(gridUv.y);
+
+    float bottom = mix(dotBottomLeft,dotBottomRight, u);
+    float top = mix(dotTopLeft,dotTopRight, u);
+
+    float perlin = mix(bottom,top,gridUv.y);
+
+    return perlin;
 }
-float4 taylorInvSqrt(float4 r)
-{
-    return 1.79284291400159 - 0.85373472095314 * r;
-}
-float noise2D(float2 P)
-{
-    float4 Pi = floor(P.xyxy) + float4(0.0, 0.0, 1.0, 1.0);
-    float4 Pf = frac(P.xyxy) - float4(0.0, 0.0, 1.0, 1.0);
 
-    float4 ix = Pi.xzxz;
-    float4 iy = Pi.yyww;
-    float4 fx = Pf.xzxz;
-    float4 fy = Pf.yyww;
-
-    float4 i = permute(permute(ix) + iy);
-
-    float4 gx = frac(i / 41.0) * 2.0 - 1.0;
-    float4 gy = abs(gx) - 0.5;
-    float4 tx = floor(gx + 0.5);
-    gx = gx - tx;
-
-    float2 g00 = float2(gx.x, gy.x);
-    float2 g10 = float2(gx.y, gy.y);
-    float2 g01 = float2(gx.z, gy.z);
-    float2 g11 = float2(gx.w, gy.w);
-
-    float4 norm = taylorInvSqrt(float4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));
-    g00 *= norm.x;
-    g01 *= norm.y;
-    g10 *= norm.z;
-    g11 *= norm.w;
-
-    float n00 = dot(g00, float2(fx.x, fy.x));
-    float n10 = dot(g10, float2(fx.y, fy.y));
-    float n01 = dot(g01, float2(fx.z, fy.z));
-    float n11 = dot(g11, float2(fx.w, fy.w));
-
-    float2 fade_xy = fade(Pf.xy);
-    float2 n_x = lerp(float2(n00, n01), float2(n10, n11), fade_xy.x);
-    float n_xy = lerp(n_x.x, n_x.y, fade_xy.y);
-    return 2.3 * n_xy;
+float2 computeGradient(float2 uv) {
+    float epsilon = 0.001;
+    float noiseCenter = noise2D(uv);
+    float noiseRight = noise2D(uv + float2(epsilon, 0));
+    float noiseUp = noise2D(uv + float2(0, epsilon));
+    
+    float dNoise_dx = noiseRight - noiseCenter;
+    float dNoise_dy = noiseUp - noiseCenter;
+    
+    return float2(dNoise_dx, dNoise_dy);
 }
 
 [numthreads(8, 8, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     float h = 0.0;
-    
+    float2 gradientSum = float2(0,0);
+
     uint width, height;
     Result.GetDimensions(width, height);
     float2 uv = id.xy / float2(width, height) * 2 - 1;
     uv = (uv + offset) * noiseScale;
 
+    float maxAmp = 0;
+
     if (octavesCount == 0)
     {
         h = 1.0 * (1.0 + noise2D(float2(uv.x + offset.x, uv.y + offset.y))) * 0.5;
+        maxAmp = 1;
     }
     else
     {
@@ -118,9 +119,20 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         {
             float amplitude = octaveBuffer[i].amplitude;
             float frequency = octaveBuffer[i].frequency;
+
+            maxAmp += amplitude;
+
             h = h + amplitude * (1.0 + noise2D(float2(frequency * (uv.x + offset.x), frequency * (uv.y + offset.y)))) * 0.5;
+
+            float2 noiseUV = (uv + offset) * frequency * noiseScale;
+            gradientSum += amplitude * computeGradient(noiseUV);        
         }
     }
-    
+
+    float2 flowDirection = normalize(gradientSum/maxAmp);
+    float3 color = (float3(flowDirection,0) + 1) * 0.5; 
+    FlowField[id.xy] = float4(color,1);
+
+    h = h/maxAmp;
     Result[id.xy] = float4(h.xxx, 1);
 }

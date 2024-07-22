@@ -17,7 +17,7 @@ RenderSettings:
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0.3
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -27,9 +27,9 @@ RenderSettings:
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
-  m_HaloStrength: 0.5
+  m_HaloStrength: 1
   m_FlareStrength: 1
-  m_FlareFadeSpeed: 3
+  m_FlareFadeSpeed: 32.44
   m_HaloTexture: {fileID: 0}
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 410087040}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -122,6 +122,111 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &323397664
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 323397668}
+  - component: {fileID: 323397667}
+  - component: {fileID: 323397666}
+  - component: {fileID: 323397665}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &323397665
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323397664}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &323397666
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323397664}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &323397667
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323397664}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &323397668
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323397664}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -53.977, y: 2.29, z: 256.25305}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,7 +393,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
@@ -377,6 +482,111 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
+--- !u!1 &517271106
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 517271110}
+  - component: {fileID: 517271109}
+  - component: {fileID: 517271108}
+  - component: {fileID: 517271107}
+  m_Layer: 0
+  m_Name: Cube (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &517271107
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517271106}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &517271108
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517271106}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &517271109
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517271106}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &517271110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517271106}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -53.977, y: 2.29, z: 256.876}
+  m_LocalScale: {x: 1.4047, y: 1.3464, z: 1.6067}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -525,12 +735,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1037686763}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1.9, z: 0}
   m_LocalScale: {x: 286.8711, y: 286.8711, z: 286.8711}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1448971386}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1448971385
 GameObject:
@@ -560,7 +770,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1037686767}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2010719740
@@ -575,11 +786,14 @@ GameObject:
   - component: {fileID: 2010719743}
   - component: {fileID: 2010719742}
   - component: {fileID: 2010719741}
-  - component: {fileID: 2010719745}
   - component: {fileID: 2010719746}
   - component: {fileID: 2010719747}
+  - component: {fileID: 2010719748}
+  - component: {fileID: 2010719751}
+  - component: {fileID: 2010719750}
+  - component: {fileID: 2010719749}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: IslandGenerator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -648,57 +862,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapManager: {fileID: 2010719746}
-  curve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 2.2383513
-      value: 0.8270364
-      inSlope: 0.098674685
-      outSlope: 0.098674685
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.10866284
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 6.453487
-      value: 1.2056963
-      inSlope: 0.16535841
-      outSlope: 0.16535841
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.11108466
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 7.9927697
-      value: 0.041892886
-      inSlope: 0.22580285
-      outSlope: 0.22580285
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.31552288
-    - serializedVersion: 3
-      time: 9.511935
-      value: 0.4575476
-      inSlope: -0.107033834
-      outSlope: -0.107033834
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.26517916
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!4 &2010719744
 Transform:
   m_ObjectHideFlags: 0
@@ -714,24 +877,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2010719745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2010719740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6c6013864627a68448533478553d2206, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mapManager: {fileID: 2010719746}
-  noiseTexture: {fileID: 0}
-  noiseScale: 51.3
-  octaves: 147
-  lacunarity: 1.62
-  persistance: 0.5
 --- !u!114 &2010719746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,7 +893,172 @@ MonoBehaviour:
   renderDistance: 1024
   playerTransform: {fileID: 1448971386}
   simpleVoronoi: {fileID: 11400000, guid: 7a22a0730fe17cb43bdacbfcd61e07a2, type: 2}
-  chunkList: []
+  biomes:
+  - name: Ice
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: -0.0006551407
+        value: 14.957846
+        inSlope: -0
+        outSlope: -0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.6918893
+        value: -4.7380676
+        inSlope: -0
+        outSlope: -0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 3.236569
+        value: -0.6521301
+        inSlope: -0.09465408
+        outSlope: -0.09465408
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    regions:
+    - name: Sand
+      height: 0
+      color: {r: 0.076539695, g: 0.1554429, b: 0.3773585, a: 0}
+      texture: {fileID: 0}
+    - name: Grass
+      height: 20
+      color: {r: 0.03123886, g: 0.049403515, b: 0.735849, a: 0}
+      texture: {fileID: 0}
+    - name: Rock
+      height: 40
+      color: {r: 0.4669811, g: 0.5394471, b: 1, a: 0}
+      texture: {fileID: 0}
+    - name: Snow
+      height: 50
+      color: {r: 1, g: 0.9764151, b: 0.9764151, a: 0}
+      texture: {fileID: 0}
+    axiom: 
+  - name: Default
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.55712765
+        value: 0.103824764
+        inSlope: 0.098674685
+        outSlope: 0.098674685
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10866284
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.77919555
+        value: 1.108793
+        inSlope: 0.74854946
+        outSlope: 0.74854946
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    regions:
+    - name: Sand
+      height: 0
+      color: {r: 0.6792453, g: 0.56558007, b: 0.20185119, a: 0}
+      texture: {fileID: 0}
+    - name: Grass
+      height: 3
+      color: {r: 0.26985964, g: 0.6037736, b: 0.24777503, a: 0}
+      texture: {fileID: 0}
+    - name: Rock
+      height: 7
+      color: {r: 0.24528301, g: 0.24528301, b: 0.24528301, a: 0}
+      texture: {fileID: 0}
+    - name: Snow
+      height: 30
+      color: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 0}
+      texture: {fileID: 0}
+    axiom: K
+  - name: Dessert
+    curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.26250562
+        value: 0.31469736
+        inSlope: 0.026587937
+        outSlope: 0.026587937
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5627429
+        value: 0.09115997
+        inSlope: 0.098674685
+        outSlope: 0.098674685
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10866284
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.76601195
+        value: 0.77118456
+        inSlope: 0.74854946
+        outSlope: 0.74854946
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    regions:
+    - name: Sand
+      height: 0
+      color: {r: 0.745283, g: 0.6399503, b: 0.20741367, a: 1}
+      texture: {fileID: 0}
+    - name: Grass
+      height: 3
+      color: {r: 0.8431373, g: 0.654902, b: 0.454902, a: 1}
+      texture: {fileID: 0}
+    - name: Rock
+      height: 6
+      color: {r: 0.5849056, g: 0.3904163, b: 0.20692417, a: 0}
+      texture: {fileID: 0}
+    - name: Snow
+      height: 10
+      color: {r: 0.7264151, g: 0.26544514, b: 0.119927004, a: 0}
+      texture: {fileID: 0}
+    axiom: K
 --- !u!114 &2010719747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -762,11 +1072,162 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseScale: 2.6
-  octaves: 1
+  octaves: 40
   lacunarity: 1.62
   persistance: 0.5
   computeShader: {fileID: 7200000, guid: 9ad851a7ce50eee4b82d18f24f9fb4a1, type: 3}
   renderTarget: {fileID: 0}
+  material: {fileID: 2100000, guid: 64bd2c8e5145e204f89457f013da4e2c, type: 2}
+--- !u!114 &2010719748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010719740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3469e515dc16d42a3d470852eb7ba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  computeShader: {fileID: 7200000, guid: 25b34ca8e48a77449a420cd5fe5a9852, type: 3}
+  renderTarget: {fileID: 0}
+  flowField: {fileID: 0}
+  maxSteps: 1000
+  particleAmount: 300
+  river: {fileID: 0}
+--- !u!114 &2010719749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010719740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60b257a14e28e8d4a9c0c64be31fcded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  axiom: 
+  recursion: 7
+  _angle: 7
+  treeAmount: 1
+  useThiccness: 1
+  lIndex: 07000000
+  leaveObject: {fileID: 0}
+  letter: 410046004b005000
+  rule:
+  - F[++,A.L--][+,AL.-]
+  - F
+  - '[P][P][P]'
+  - +F[A]
+--- !u!114 &2010719750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010719740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350fec18399c0294f93d1c9850c58784, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  radius: 1.31
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: -0.006226562
+      value: 1.501182
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1.5
+      value: 2.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 3.5
+      value: 0
+      inSlope: 0.015116391
+      outSlope: 0.015116391
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.03043362
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  material: {fileID: 2100000, guid: d511e56f39401474ca72458b2cb6e121, type: 2}
+  gameObejct: {fileID: 0}
+--- !u!114 &2010719751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2010719740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed1d9513e50838f4e801a49f2e37e26e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  material: {fileID: 2100000, guid: 9e24a8cb40def9441a66283d7461c6ce, type: 2}
+  pentagonalDodecahedronGenerator: {fileID: 2010719750}
+  faces: 10
+  floors: 12
+  cylinderHeight: 0.2
+  thiccness: 0.5
+  leaveSize: 20.08
+  reductionRate: 0.9793
+  randomness: 1.93
+  randomnessScale: 28.11
+  randomnessX: 1
+  randomnessY: 0.6
+  randomnessZ: 1
+  rootChance: 0
+  rootThiccness: 2
+  angularOffset: 187.01
+  growDir: 1
+  gradient:
+    serializedVersion: 2
+    key0: {r: 0.3962264, g: 0.102424376, b: 0, a: 1}
+    key1: {r: 0.21698111, g: 0.055856526, b: 0, a: 1}
+    key2: {r: 0, g: 0.0792079, b: 1, a: 0}
+    key3: {r: 0.6415094, g: 0.16514105, b: 0, a: 0}
+    key4: {r: 0.5254902, g: 0, b: 0.4371228, a: 0}
+    key5: {r: 0.63529414, g: 0.15686275, b: 0.027450982, a: 0}
+    key6: {r: 0.5398177, g: 0.13495013, b: 0.016494669, a: 0}
+    key7: {r: 0.39607847, g: 0.10196079, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 15806
+    ctime2: 15859
+    ctime3: 16122
+    ctime4: 16253
+    ctime5: 16711
+    ctime6: 39128
+    ctime7: 65535
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 8
+    m_NumAlphaKeys: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -776,4 +1237,5 @@ SceneRoots:
   - {fileID: 832575519}
   - {fileID: 2010719744}
   - {fileID: 1448971386}
-  - {fileID: 1037686767}
+  - {fileID: 323397668}
+  - {fileID: 517271110}

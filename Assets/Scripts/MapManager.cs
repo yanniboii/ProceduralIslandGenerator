@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-
+using JetBrains.Annotations;
+/// <summary>
+/// This is the main script of the whole generator. This needs to have access to all the components connected to the generation.
+/// </summary>
 public class MapManager : MonoBehaviour
 {
     [SerializeField] public static int seed;
@@ -15,13 +18,12 @@ public class MapManager : MonoBehaviour
 
     [SerializeField] SimpleVoronoi simpleVoronoi;
 
-    [SerializeField] List<Chunk> chunkList = new List<Chunk>();
-
+    [SerializeField] List<Biomes> biomes = new List<Biomes>();
 
     #region components
 
-    PerlinNoise perlinNoise;
     PerlinComputeMaster perlinComputeMaster;
+    FlowFieldRiverMaster flowFieldRiverMaster;
     MeshGenerator meshGenerator;
 
     #endregion
@@ -39,8 +41,14 @@ public class MapManager : MonoBehaviour
     private int chunksInRenderDistance;
 
     private int previousChunkSize;
+    private bool stopUpdating = false;
 
     #endregion
+
+    private void Awake()
+    {
+        Random.InitState(seed);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -48,6 +56,9 @@ public class MapManager : MonoBehaviour
         SetValues();
 
         onValuesChanged += () => Debug.Log("Values Changed");
+        onValuesChanged += () => stopUpdating = true;
+        onValuesChanged += () => biomes.Clear();
+        onValuesChanged += () => stopUpdating = false;
         onValuesChanged += UpdateChunks;
         UpdateChunks();
     }
@@ -56,17 +67,20 @@ public class MapManager : MonoBehaviour
     void Update()
     {
         CheckIfValuesChanged();
-        UpdateChunks();
-        playerTransform.Translate(new Vector3(0.05f,0,0));
+        if(!stopUpdating) UpdateChunks();
+        //playerTransform.Translate(new Vector3(0.05f,0,0));
     }
 
     void UpdateChunks()
     {
+        if(stopUpdating) return;
+
         foreach (Chunk item in chunks.Values)
         {
             if (!item.gameObject.active) continue;
             item.gameObject.SetActive(false);
         }
+
         for (int y = -chunksInRenderDistance; y <= chunksInRenderDistance; y++)
         {
             for(int x = -chunksInRenderDistance; x <= chunksInRenderDistance; x++)
@@ -76,8 +90,8 @@ public class MapManager : MonoBehaviour
 
                 if (!chunks.ContainsKey(currentChunk))
                 {
-                    Debug.Log("B");
-                    chunks.Add(currentChunk,new Chunk(meshGenerator,perlinNoise, perlinComputeMaster, simpleVoronoi, currentChunk, chunkSize));
+                    chunks.Add(currentChunk, new Chunk(meshGenerator, perlinComputeMaster, flowFieldRiverMaster, simpleVoronoi, currentChunk, chunkSize,
+                                                   biomes[Random.Range(0, biomes.Count)], GetComponent<MeshRenderer>().sharedMaterial));
                 }
                 else
                 {
@@ -103,8 +117,8 @@ public class MapManager : MonoBehaviour
     void SetValues()
     {
         previousChunkSize = chunkSize;
-        perlinNoise = GetComponent<PerlinNoise>();
         perlinComputeMaster = GetComponent<PerlinComputeMaster>();
+        flowFieldRiverMaster = GetComponent<FlowFieldRiverMaster>();
         meshGenerator = GetComponent<MeshGenerator>();
 
         chunksInRenderDistance = Mathf.RoundToInt(renderDistance/chunkSize);
@@ -124,38 +138,74 @@ public struct Chunk
     public bool initialized;
 
     MeshGenerator generator;
-    PerlinNoise perlinNoise;
     PerlinComputeMaster perlinComputeMaster;
+    FlowFieldRiverMaster flowFieldRiverMaster;
 
     float[,] perlinNoiseMap;
     int chunkSize;
 
-    public Chunk(MeshGenerator generator, PerlinNoise perlinNoise, PerlinComputeMaster perlinComputeMaster, SimpleVoronoi simpleVoronoi,Vector2Int pos, int chunkSize)
+    public Chunk(MeshGenerator generator, PerlinComputeMaster perlinComputeMaster, FlowFieldRiverMaster flowFieldRiverMaster
+        , SimpleVoronoi simpleVoronoi,Vector2Int pos, int chunkSize, Biomes biome, Material baseMaterial)
     {
-        float random = Random.Range(0f,3f);
+        perlinNoiseMap = null;
+        gameObject = new GameObject();
 
+        float islandChance = Random.Range(0f,3f);
 
         this.generator = generator;
-        this.perlinNoise = perlinNoise;
         this.perlinComputeMaster = perlinComputeMaster;
+        this.flowFieldRiverMaster = flowFieldRiverMaster;
 
         this.pos = pos;
         this.chunkSize = chunkSize;
-        if (random > 2.5)
+        if (islandChance > 2.5)
         {
             SimpleVoronoi pasteVoronoi = ScriptableObject.CreateInstance<SimpleVoronoi>();
 
             pasteVoronoi.Initialize(chunkSize, simpleVoronoi);
 
+            Texture2D texture2D = null;
+            RenderTexture renderTexture = null;
+
             //perlinNoiseMap = perlinNoise.GeneratePerlinNoiseMap(this.pos,chunkSize);
-            perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x, this.pos.y));
-            gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize, pasteVoronoi);
-        }
-        else
-        {
-            perlinNoiseMap = new float[1,1];
-            gameObject = generator.GenerateMesh(this.pos, this.chunkSize);
+            perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x, this.pos.y), out texture2D, out renderTexture);
+            //float[,] riverTex;
+            //this.flowFieldRiverMaster.GetRiver(this.chunkSize, renderTexture, out riverTex);
+            gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize, pasteVoronoi, biome.curve, biome.axiom);
+            gameObject.transform.Translate(new Vector3(0,-1.9f,0));
+            MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
+            Material terrainMaterial;
+            terrainMaterial = baseMaterial;
+            meshRenderer.material = terrainMaterial;
+
+            meshRenderer.material.SetTexture("_Perlin", texture2D);
+
+            var sortedRegions = biome.regions.OrderBy(x => x.height).ToArray();
+
+            meshRenderer.sharedMaterial.SetInt("regionsCount", sortedRegions.Length - 1);
+            meshRenderer.sharedMaterial.SetColorArray("regions", sortedRegions.Select(x => x.color).ToArray());
+            meshRenderer.sharedMaterial.SetFloatArray("regionHeights", sortedRegions.Select(x => x.height).ToArray());
+
         }
         initialized = true;
     }
+}
+
+[System.Serializable]
+public struct TerrainType
+{
+    public string name;
+    public float height;
+    public Color color;
+    public Texture2D texture;
+}
+
+
+[System.Serializable]
+public struct Biomes
+{
+    public string name;
+    public AnimationCurve curve;
+    public TerrainType[] regions;
+    public string axiom;
 }

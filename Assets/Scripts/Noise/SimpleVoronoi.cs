@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This scriptable object is used to generate the voronoi noise.
+/// </summary>
+
 [CreateAssetMenu(fileName = "VoronoiData", menuName = "VoronoiData/VoronoiData")]
 public class SimpleVoronoi : ScriptableObject
 {
