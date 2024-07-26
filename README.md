@@ -3,6 +3,7 @@
 ### Island form
 The islands are generated using 3 values. First of all, I generate a Perlin noise texture in a compute shader. Using this texture as a height map yields a random landscape. I then change the values of the Perlin noise texture with a Unity Animation Curve. This allows me to control the shape of the islands
 more. I also use Voronoi noise to generate a random falloff Map when I blend the falloff map with the Perlin noise I get the shape of my islands.
+
 ![image](https://github.com/user-attachments/assets/418093ee-0fb1-4f90-9fec-6a9ca419e8e8)
 
 ### Island color
@@ -18,3 +19,11 @@ Originally I also wanted to add textures but due to my inexperience with Texture
 ### Compute shaders
 For this project I made 2 compute shaders one of them I wasn't able to completely finish due to the complexity of the task. the first compute shader is used to generate a Perlin noise texture and a Flowfield. The reason that I generate the Perlin noise in a compute shader is because it is way better for
 the performance of the game. The second one is used to generate a texture that contains the rivers but like I said earlier I didn't have time to finish it.
+
+
+### TODO
+I will still be working on rivers as I find this topic intriguing. I have decided that i will generate the rivers based on the voronoi instead of using the flowfield as this will be less computationally expensive and easier to make. This is the vision that I have in mind.
+
+![voronoi based rivers](https://github.com/user-attachments/assets/269d0b46-dc51-403c-85ea-019a8dbbc670)
+
+I will be using the Voronoi point as the starting point and let it go to a random point at the edge of the mesh.
