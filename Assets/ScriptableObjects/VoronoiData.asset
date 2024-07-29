@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba93382afaa42494d937150e2ed1cce6, type: 3}
   m_Name: VoronoiData
   m_EditorClassIdentifier: 
-  cellAmount: 60
-  cellSize: 80
-  tolerance: 1
+  cellAmount: 4
+  cellSize: 76.7
+  minRiverOffset: 1.93
+  maxRiverOffset: 12.41
   cells: []
+  riverStartPoints: []

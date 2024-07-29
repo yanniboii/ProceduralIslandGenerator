@@ -20,10 +20,12 @@ public class MapManager : MonoBehaviour
 
     [SerializeField] List<Biomes> biomes = new List<Biomes>();
 
+    [SerializeField] List<Chunk> chunkList = new List<Chunk>();
+
     #region components
 
     PerlinComputeMaster perlinComputeMaster;
-    FlowFieldRiverMaster flowFieldRiverMaster;
+    PerlinWormMaster flowFieldRiverMaster;
     MeshGenerator meshGenerator;
 
     #endregion
@@ -77,6 +79,7 @@ public class MapManager : MonoBehaviour
 
         foreach (Chunk item in chunks.Values)
         {
+            if (item.gameObject == null) continue;
             if (!item.gameObject.active) continue;
             item.gameObject.SetActive(false);
         }
@@ -90,13 +93,16 @@ public class MapManager : MonoBehaviour
 
                 if (!chunks.ContainsKey(currentChunk))
                 {
-                    chunks.Add(currentChunk, new Chunk(meshGenerator, perlinComputeMaster, flowFieldRiverMaster, simpleVoronoi, currentChunk, chunkSize,
-                                                   biomes[Random.Range(0, biomes.Count)], GetComponent<MeshRenderer>().sharedMaterial));
+                    Chunk chunk = new Chunk(meshGenerator, perlinComputeMaster, flowFieldRiverMaster, simpleVoronoi, currentChunk, chunkSize,
+                                                   biomes[Random.Range(0, biomes.Count)], GetComponent<MeshRenderer>().sharedMaterial);
+                    chunks.Add(currentChunk, chunk);
+                    chunkList.Add(chunk);
                 }
                 else
                 {
                     Chunk chunk;
                     chunks.TryGetValue(currentChunk,out chunk);
+                    if (chunk.gameObject == null) continue;
                     chunk.gameObject.SetActive(true);
                 }
             }
@@ -118,7 +124,7 @@ public class MapManager : MonoBehaviour
     {
         previousChunkSize = chunkSize;
         perlinComputeMaster = GetComponent<PerlinComputeMaster>();
-        flowFieldRiverMaster = GetComponent<FlowFieldRiverMaster>();
+        flowFieldRiverMaster = GetComponent<PerlinWormMaster>();
         meshGenerator = GetComponent<MeshGenerator>();
 
         chunksInRenderDistance = Mathf.RoundToInt(renderDistance/chunkSize);
@@ -133,28 +139,37 @@ public class MapManager : MonoBehaviour
 public struct Chunk
 {
     public Vector2Int pos;
-    public GameObject gameObject;
+    public GameObject? gameObject;
+
+    public Texture2D meshTexture;
+    public Texture2D riverTex;
+    public SimpleVoronoi simpleVoronoi;
 
     public bool initialized;
 
     MeshGenerator generator;
     PerlinComputeMaster perlinComputeMaster;
-    FlowFieldRiverMaster flowFieldRiverMaster;
+    PerlinWormMaster perlinWormMaster;
 
     float[,] perlinNoiseMap;
     int chunkSize;
 
-    public Chunk(MeshGenerator generator, PerlinComputeMaster perlinComputeMaster, FlowFieldRiverMaster flowFieldRiverMaster
+    public Chunk(MeshGenerator generator, PerlinComputeMaster perlinComputeMaster, PerlinWormMaster perlinWormMaster
         , SimpleVoronoi simpleVoronoi,Vector2Int pos, int chunkSize, Biomes biome, Material baseMaterial)
     {
         perlinNoiseMap = null;
-        gameObject = new GameObject();
+        gameObject = null;
 
+        meshTexture = null;
+        riverTex = null;
+
+        this.simpleVoronoi = null;
         float islandChance = Random.Range(0f,3f);
 
         this.generator = generator;
         this.perlinComputeMaster = perlinComputeMaster;
-        this.flowFieldRiverMaster = flowFieldRiverMaster;
+        this.perlinWormMaster = perlinWormMaster;
+
 
         this.pos = pos;
         this.chunkSize = chunkSize;
@@ -163,16 +178,19 @@ public struct Chunk
             SimpleVoronoi pasteVoronoi = ScriptableObject.CreateInstance<SimpleVoronoi>();
 
             pasteVoronoi.Initialize(chunkSize, simpleVoronoi);
+            this.simpleVoronoi = pasteVoronoi;
 
             Texture2D texture2D = null;
             RenderTexture renderTexture = null;
 
             //perlinNoiseMap = perlinNoise.GeneratePerlinNoiseMap(this.pos,chunkSize);
             perlinNoiseMap = perlinComputeMaster.GetPerlinNoise(this.chunkSize, new Vector2(this.pos.x, this.pos.y), out texture2D, out renderTexture);
-            //float[,] riverTex;
-            //this.flowFieldRiverMaster.GetRiver(this.chunkSize, renderTexture, out riverTex);
-            gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize, pasteVoronoi, biome.curve, biome.axiom);
+            
+            this.perlinWormMaster.GetRiver(this.chunkSize, pasteVoronoi, renderTexture, out riverTex);
+            
+            gameObject = generator.GenerateMesh(this.pos, perlinNoiseMap, this.chunkSize, pasteVoronoi, biome.curve, biome.axiom, out meshTexture);
             gameObject.transform.Translate(new Vector3(0,-1.9f,0));
+            
             MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
             Material terrainMaterial;
             terrainMaterial = baseMaterial;
@@ -185,10 +203,10 @@ public struct Chunk
             meshRenderer.sharedMaterial.SetInt("regionsCount", sortedRegions.Length - 1);
             meshRenderer.sharedMaterial.SetColorArray("regions", sortedRegions.Select(x => x.color).ToArray());
             meshRenderer.sharedMaterial.SetFloatArray("regionHeights", sortedRegions.Select(x => x.height).ToArray());
-
         }
         initialized = true;
     }
+
 }
 
 [System.Serializable]

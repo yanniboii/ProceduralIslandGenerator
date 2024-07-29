@@ -6,16 +6,10 @@ using UnityEngine.Rendering;
 /// This class is used to generate the river texture using the flowField texture that i generate in the perlinComputeMaster. Currently this
 /// doesn't work and only gives a weird result.
 /// </summary>
-public class FlowFieldRiverMaster : MonoBehaviour
+public class PerlinWormMaster : MonoBehaviour
 {
     [SerializeField] ComputeShader computeShader;
     [SerializeField] Texture2D renderTarget;
-    [SerializeField] RenderTexture flowField;
-    [SerializeField] int maxSteps;
-    [SerializeField] int particleAmount;
-
-    ComputeBuffer computeBuffer;
-    ComputeBuffer particleBuffer;
 
     [SerializeField] RenderTexture river;
 
@@ -30,14 +24,13 @@ public class FlowFieldRiverMaster : MonoBehaviour
 
     }
 
-    public float[,] GetRiver(int chunkSize, RenderTexture flowFieldVectors, out float[,] texture2D)
+    public float[,] GetRiver(int chunkSize, SimpleVoronoi voronoi, RenderTexture perlin, out Texture2D texture2D)
     {
-        SetValues(chunkSize);
+        SetValues(chunkSize, voronoi);
         InitRenderTexture(chunkSize);
 
         computeShader.SetTexture(0, "river", river);
-        computeShader.SetTexture(0, "FlowFieldVectors", flowFieldVectors);
-        flowField = flowFieldVectors;
+        computeShader.SetTexture(0, "perlin", perlin);
 
         int threadGroups = Mathf.CeilToInt(chunkSize / 8.0f);
 
@@ -49,10 +42,7 @@ public class FlowFieldRiverMaster : MonoBehaviour
 
         float[,] floatArray = ConvertTexture2DToFloatArray(renderTarget);
         
-        computeBuffer.Dispose();
-        particleBuffer.Dispose();
-
-        texture2D = floatArray;
+        texture2D = renderTarget;
 
         return floatArray;
     }
@@ -101,36 +91,39 @@ public class FlowFieldRiverMaster : MonoBehaviour
         }
     }
 
-    void SetValues(int chunkSize)
+    void SetValues(int chunkSize, SimpleVoronoi voronoi)
     {
-        computeBuffer = new ComputeBuffer(maxSteps, sizeof(float)*2);
-
-        computeShader.SetBuffer(0, "riverPath", computeBuffer);
-
-        particleBuffer = new ComputeBuffer (particleAmount, sizeof(float)*6);
-
-        Particle[] particles = new Particle[particleAmount];
-        for (int i = 0; i < particleAmount; i++)
+        Vector4[] startPoints = new Vector4[voronoi.riverStartPoints.Count];
+        for (int i = 0; i < startPoints.Length; i++)
         {
-            particles[i].pos = new Vector2(Random.Range(0, chunkSize),Random.Range(0, chunkSize));
-            particles[i].vel = new Vector2(Random.Range(0, 4), Random.Range(0, 4));
-            particles[i].acc = Vector2.zero;
+            startPoints[i] = new Vector4(voronoi.riverStartPoints[i].x, voronoi.riverStartPoints[i].y, 0, 0);
         }
+        Vector4[] endPoints = new Vector4[voronoi.riverStartPoints.Count];
+        for (int i = 0; i < startPoints.Length; i++)
+        {
+            float side = Random.Range(0f, 1f);
+            if(side < 0.25f)
+            {
+                endPoints[i] = new Vector4(Random.Range(0,chunkSize), chunkSize, 0, 0);
+            }
+            else if(side < 0.5f)
+            {
+                endPoints[i] = new Vector4(0, Random.Range(0, chunkSize), 0, 0);
+            }
+            else if (side < 0.75f)
+            {
+                endPoints[i] = new Vector4(chunkSize, Random.Range(0, chunkSize), 0, 0);
+            }
+            else
+            {
+                endPoints[i] = new Vector4(Random.Range(0, chunkSize), 0, 0, 0);
+            }
+        }
+        computeShader.SetFloat("cellSize", Mathf.Abs(voronoi.cellSize));
 
-        particleBuffer.SetData(particles);
-
-        computeShader.SetBuffer(0, "particles", particleBuffer);
-        computeShader.SetInt("particlesCount", particles.Length);
-
-        computeShader.SetInt("maxSteps", maxSteps);
-
+        computeShader.SetVectorArray("startPoints", startPoints);
+        computeShader.SetVectorArray("endPoints", endPoints);
+        computeShader.SetInt("pointCount", voronoi.riverStartPoints.Count);
     }
 
-}
-
-public struct Particle
-{
-    public Vector2 pos;
-    public Vector2 vel;
-    public Vector2 acc;
 }

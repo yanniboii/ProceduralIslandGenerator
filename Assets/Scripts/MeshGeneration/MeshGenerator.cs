@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEngine;
 /// <summary>
 /// The meshGenerator generates a mesh based on the perlin noise, voronoi noise, and animation curve. It also places the trees down.
@@ -36,7 +35,8 @@ public class MeshGenerator : MonoBehaviour
         meshSize = mapManager.GetChunkSize();
     }
 
-    public GameObject GenerateMesh(/*int meshWidth, int meshHeight*/Vector2Int offset, float[,] noiseMap, int chunkSize, SimpleVoronoi simpleVoronoi, AnimationCurve curve, string axiom)
+    public GameObject GenerateMesh(Vector2Int offset, float[,] noiseMap, int chunkSize
+        , SimpleVoronoi simpleVoronoi, AnimationCurve curve, string axiom, out Texture2D texture2D)
     {
         GameObject chunk = new GameObject();
 
@@ -60,34 +60,52 @@ public class MeshGenerator : MonoBehaviour
         var triangles = new int[(meshSize-1)*(meshSize-1)*6];
         var uvs = new Vector2[meshSize*meshSize];
 
-        for(int y = 0; y < meshSize; y++)
+        texture2D = new Texture2D(meshSize,meshSize);
+        Color[] colors = new Color[meshSize * meshSize];
+
+        for (int y = 0; y < meshSize; y++)
         {
             for(int x = 0; x < meshSize; x++)
             {
-                float distance = float.MaxValue;
+                float distanceToVoronoi = float.MaxValue;
+                float distanceToRiverStart = float.MaxValue;
 
                 for (int i = 0; i < simpleVoronoi.cellAmount; i++)
                 {
                     float pointDistance = Vector2.Distance(new Vector2(x, y), simpleVoronoi.cells[i]);
-                    distance = Mathf.Min(distance, pointDistance);
+                    distanceToVoronoi = Mathf.Min(distanceToVoronoi, pointDistance);
+                }
+                for(int i = 0; i < simpleVoronoi.riverStartPoints.Count; i++)
+                {
+                    float pointDistance = Vector2.Distance(new Vector2(x, y), simpleVoronoi.riverStartPoints[i]);
+                    distanceToRiverStart = Mathf.Min(distanceToRiverStart, pointDistance);
                 }
 
-                float normalizedDistance = distance / effectiveCellSize;
-                float distancePercentage = Mathf.Clamp01(meshSize / distance);
-                float treeDistance = Mathf.Clamp01(distance/simpleVoronoi.cellSize);
+                float normalizedDistanceToRiverStart = distanceToRiverStart / effectiveCellSize;
+
+                float normalizedDistanceToVoronoi = distanceToVoronoi / effectiveCellSize;
+
+                float distancePercentage = Mathf.Clamp01(meshSize / distanceToVoronoi);
                 float noiseValue = curve.Evaluate(noiseMap[x, y]);
                 float heightA = noiseValue * Mathf.Pow(1-distancePercentage, 2);
                 float heightB = noiseValue * 60 * Mathf.Pow( distancePercentage, 2);
 
-                float blendFactor = Mathf.SmoothStep(0, 1, normalizedDistance);
+                float blendFactor = Mathf.SmoothStep(0, 1, normalizedDistanceToVoronoi);
                 float finalHeight = Mathf.Lerp(heightB, heightA, blendFactor);
 
-                if(treeDistance < 0.004f && finalHeight <= 7)
+                if(normalizedDistanceToVoronoi < 0.004f && finalHeight <= 7)
                 {
                     Debug.Log("hey");
                     lSystems.axiom = axiom;
                     lSystems.spawntrees(new Vector3(x - (meshSize / 2), finalHeight, y - (meshSize / 2)), chunk.transform);
                 }
+
+                if(normalizedDistanceToRiverStart < 1.1f)
+                {
+                    //finalHeight -= finalHeight/3;
+                }
+                
+                colors[y * meshSize + x] = Color.Lerp(Color.white, Color.black, finalHeight);
 
                 vertices[vI] = new Vector3(x - (meshSize / 2), finalHeight, y - (meshSize / 2));
                 uvs[vI] = (new Vector2((float)x/meshSize, (float)y /meshSize));
@@ -106,7 +124,8 @@ public class MeshGenerator : MonoBehaviour
             }
         }
 
-
+        texture2D.SetPixels(colors);
+        texture2D.Apply();
 
         mesh.vertices = vertices;
         mesh.uv = uvs;

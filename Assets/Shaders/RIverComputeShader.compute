@@ -3,21 +3,23 @@
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> FlowFieldVectors;
 RWTexture2D<float4> river;
-RWStructuredBuffer<float2> riverPath;
+RWTexture2D<float4> perlin;
 
-struct Particle{
-    float2 pos;
-    float2 vel;
-    float2 acc;
-};
-RWStructuredBuffer<Particle> particles;
-int particlesCount;
-int maxSteps;
+float cellSize;
 
-float2 GetFlowDirection(float2 position){
-    return FlowFieldVectors.Load(int3(position,0)).xy * 2 - 1;
+const static int maxPointCount = 256;
+
+int pointCount;
+
+float4 startPoints[maxPointCount];
+float4 endPoints[maxPointCount];
+
+float Distance(float2 a, float2 b)
+{
+    float num = a.x - b.x;
+    float num2 = a.y - b.y;
+    return sqrt(num * num + num2 * num2);
 }
 
 [numthreads(8,8,1)]
@@ -25,30 +27,43 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 {
     uint width, height;
     river.GetDimensions(width,height);
-
-    if(id.x < width && id.y < height){
-        river[id.xy] = float4(1,0,0,1);
-    }
-    for(int i = 0; i < maxSteps; i++){
-
-        for(int j = 0; j < particlesCount; j++){
-            float2 flowDirection = GetFlowDirection(particles[i].pos);
-            flowDirection = normalize(flowDirection);
-
-            if (particles[i].pos.x >= 0 && particles[i].pos.x < width && particles[i].pos.y >= 0 && particles[i].pos.y < height) {
-                river[int2(particles[i].pos.xy)] = float4(0,0,1,1);
-            }
-
-            riverPath[i] = particles[i].pos;
-            particles[i].acc = flowDirection;
-            particles[i].vel += particles[i].acc;
-            particles[i].vel = clamp(0,4,particles[i].pos);
-            particles[i].pos += particles[i].vel;
-            particles[i].vel -= 0.1f;
+    
+    river[id.xy] = float4(0,0,0,0);
+    float distance = 1000000;
+    for (int i = 0; i < pointCount; i++)
+    {
+        // Sample Perlin noise to get direction
+        float2 position = startPoints[i].xy;
+        float2 sample = float2(int(id.x) % width, int(id.y) % height);
+        float noiseValue = perlin[sample].r; //.SampleLevel(id.xy / float2(width, height), 0).r;
+        
+        // Convert noise value to angle and direction
+        float angle = noiseValue * 6.2831853; // 2 * pi
+        float2 direction = float2(cos(angle), sin(angle));
+        
+        float distanceToPoint = Distance(id.xy, startPoints[i].xy);
+        if ((distanceToPoint / cellSize) < 0.1f)
+        {
+            river[id.xy] = float4(1, 1, 1, 1);
+        }
+        // Update worm position
+        startPoints[i].xy += direction * cellSize;
+        
+        // Draw worm path
+        distanceToPoint = Distance(id.xy, startPoints[i].xy);
+        if ((distanceToPoint/cellSize) < 0.1f)
+        {
+            river[id.xy] = float4(1, 1, 1, 1);
+        }
+        if ((id.x == uint(startPoints[i].x) && id.y == uint(startPoints[i].y)) || (id.x == uint(endPoints[i].x) && id.y == uint(endPoints[i].y)))
+        {
         }
 
-
-        
-
     }
+    //float normalizedDistanceToRiverStart = distance / cellSize;
+
+    //if (normalizedDistanceToRiverStart < 0.1f)
+    //{
+        //river[id.xy] = float4(1, 1, 1, 1);
+    //}
 }

@@ -125,7 +125,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
             h = h + amplitude * (1.0 + noise2D(float2(frequency * (uv.x + offset.x), frequency * (uv.y + offset.y)))) * 0.5;
 
             float2 noiseUV = (uv + offset) * frequency * noiseScale;
-            gradientSum += amplitude * computeGradient(noiseUV);        
+            gradientSum += amplitude; //computeGradient(noiseUV);        
         }
     }
 

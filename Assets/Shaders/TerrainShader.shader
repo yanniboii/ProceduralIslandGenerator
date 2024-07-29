@@ -74,7 +74,8 @@ Shader "Custom/TerrainShader"
                 float4 shadowCoords : TEXCOORD4;
             };
 
-            const static int maxRegionsCount = 16;
+            const static int maxRegionsCount = 32;
+            const static int maxRiversCount = 128;
 
 
             CBUFFER_START(UnityPerMaterial)
@@ -89,6 +90,13 @@ Shader "Custom/TerrainShader"
                 float4 regions[maxRegionsCount];
                 float regionHeights[maxRegionsCount];
             CBUFFER_END
+
+            float Distance(float2 a, float2 b){
+                float num = a.x - b.x;
+                float num2 = a.y - b.y;
+                return (float)sqrt(num * num + num2 * num2);
+            }
+
             // The vertex shader definition with properties defined in the Varyings 
             // structure. The type of the vert function must match the type (struct)
             // that it returns.
@@ -112,6 +120,7 @@ Shader "Custom/TerrainShader"
                 Light light = GetMainLight();
 
                 output.lightAmount = LightingSpecular(light.color, light.direction, output.normalWS.xyz, normalize(_WorldSpaceCameraPos-worldPos), 1024, _Glossiness);
+
 
                 return output;
             }
